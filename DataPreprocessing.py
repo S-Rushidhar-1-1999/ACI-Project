@@ -78,6 +78,10 @@ def preprocess_data(data, numerical_imputation_strategy='mean', categorical_impu
     print(f"Numerical columns: {numerical_cols}")
     print(f"Categorical columns: {categorical_cols}")
     
+    # Missing Values Handling: Before Imputation
+    print("\nBefore Missing Values Handling:")
+    print(data[numerical_cols].isnull().sum())
+
     # Numerical Pipeline
     numerical_pipeline = Pipeline([
         ('imputer', SimpleImputer(strategy=numerical_imputation_strategy)),  # Handle missing values
@@ -108,21 +112,40 @@ def preprocess_data(data, numerical_imputation_strategy='mean', categorical_impu
     processed_data = preprocessor.fit_transform(data)
     print("Preprocessing complete!")
 
-    # Convert the processed data back into a DataFrame
+    # After Missing Values Handling
+    print("\nAfter Missing Values Handling:")
+    # Convert transformed data back to DataFrame to check for missing values
     processed_data_df = pd.DataFrame(processed_data)
+    print(processed_data_df.isnull().sum())
 
-    # Generate column names for the transformed data
-    numerical_features = numerical_cols  # Numerical columns remain the same
-    categorical_features = []
-    if categorical_cols:
-        categorical_features = preprocessor.transformers_[1][1].named_steps['encoder'].get_feature_names_out(categorical_cols)  # One-hot encoded columns
-    all_features = numerical_features + list(categorical_features)
+    # Outlier Handling Summary (using IQR)
+    print("\nOutlier Handling Summary (using IQR):")
+    X_df = pd.DataFrame(processed_data)  # Convert NumPy array to DataFrame
+    for col in range(X_df.shape[1]):  # Iterate over column indices
+        q1 = X_df[col].quantile(0.25)
+        q3 = X_df[col].quantile(0.75)
+        iqr = q3 - q1
+        # Calculate lower and upper bounds based on IQR
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+        print(f"Column: {col}")
+        print(f"IQR: {iqr}, Q1: {q1}, Q3: {q3}, Lower Bound: {lower_bound}, Upper Bound: {upper_bound}")
 
-    # Assign column names to the processed DataFrame
-    if len(all_features) == processed_data_df.shape[1]:
-        processed_data_df.columns = all_features
+    # Normalization (after scaling)
+    print("\nNormalization (after scaling):")
+    if scaling_method:
+        scaled_data = StandardScaler().fit_transform(processed_data)  # Use StandardScaler for normalization
+        print(pd.Series(scaled_data.flatten()))  # Flatten for easy printing
     else:
-        raise ValueError("Column count mismatch: Check the preprocessing steps.")
+        print("No scaling applied.")
+
+    # Feature Engineering Placeholder
+    print("\nFeature Engineering Placeholder:")
+    print("Feature Engineering could include transformations, combinations of features, and other domain-specific features.")
+
+    # Dynamically assign column names based on transformed data
+    feature_names = numerical_cols + list(preprocessor.transformers_[1][1].named_steps['encoder'].get_feature_names_out(categorical_cols)) if categorical_cols else numerical_cols
+    processed_data_df = pd.DataFrame(processed_data, columns=feature_names)
 
     return processed_data_df
 
@@ -138,7 +161,7 @@ def save_data(data, file_name):
 # Main Execution
 if __name__ == "__main__":
     # Load dataset
-    file_path = "C:/Users/rushi/OneDrive/Desktop/M.Tech/!st year 1st term/ACI/Project/diabetes.csv"
+    file_path = "C:/Users/rushi/OneDrive/Desktop/M.Tech/!st year 1st term/ACI/Project/Credit Card Fraud Detection.csv"
     data = load_data(file_path)
 
     if data is not None:
