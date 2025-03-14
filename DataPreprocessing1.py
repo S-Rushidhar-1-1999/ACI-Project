@@ -105,10 +105,31 @@ def normalize_data(data, scaling_method='standard'):
 
 # Feature Engineering
 def feature_engineering(data):
-    """Perform feature engineering on the dataset."""
-    print("\nFeature Engineering Placeholder:")
-    print("Feature Engineering could include transformations, combinations of features, and other domain-specific features.")
-    # Implement feature engineering logic here
+    """Perform dynamic feature engineering on the dataset."""
+    print("\nDynamic Feature Engineering:")
+
+    numerical_cols = data.select_dtypes(include=['int64', 'float64']).columns.tolist()
+
+    new_cols = {}  # Dictionary to store new columns
+    
+    if len(numerical_cols) >= 2:
+        # Example: Create squared features for all numerical columns
+        for col in numerical_cols:
+            new_cols[f'{col}_squared'] = data[col] ** 2
+
+        # Example: Create interaction features for pairs of numerical columns
+        for i in range(len(numerical_cols)):
+            for j in range(i + 1, len(numerical_cols)):
+                col1 = numerical_cols[i]
+                col2 = numerical_cols[j]
+                new_cols[f'{col1}_times_{col2}'] = data[col1] * data[col2]
+                
+        # Concatenate new columns to the DataFrame
+        data = pd.concat([data, pd.DataFrame(new_cols)], axis=1)
+    else:
+        print("Insufficient numerical columns for dynamic feature engineering.")
+
+    print("Dynamic Feature Engineering Completed.")
     return data
 
 # Save Preprocessed Data to CSV
@@ -122,7 +143,7 @@ def save_data(data, file_name):
 
 # Main Execution Block
 if __name__ == "__main__":
-    file_path = "C:/Users/rushi/OneDrive/Desktop/M.Tech/!st year 1st term/ACI/Project/heart_failure_clinical_records_dataset.csv"
+    file_path = "C:/Users/rushi/OneDrive/Desktop/M.Tech/!st year 1st term/ACI/Project/Titanic - Machine Learning from Disaster.csv"
     data = load_data(file_path)
 
     if data is not None:
@@ -130,7 +151,6 @@ if __name__ == "__main__":
         data = detect_outliers(data)
         data = normalize_data(data)
         data = feature_engineering(data)
-        save_data(data, "preprocessed_data.csv")
+        # save_data(data, "preprocessed_data.csv")
         print("\nPreprocessed Data:")
         print(data.head())
-
