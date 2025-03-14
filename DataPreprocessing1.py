@@ -52,7 +52,7 @@ def handle_missing_values(data, numerical_strategy='mean', categorical_strategy=
     categorical_cols = data.select_dtypes(include=['object', 'category']).columns.tolist()
 
     print("\nBefore Missing Values Handling:")
-    print(data[numerical_cols].isnull().sum())
+    print(data.head())
 
     numerical_imputer = SimpleImputer(strategy=numerical_strategy)
     data[numerical_cols] = numerical_imputer.fit_transform(data[numerical_cols])
@@ -62,7 +62,7 @@ def handle_missing_values(data, numerical_strategy='mean', categorical_strategy=
         data[categorical_cols] = categorical_imputer.fit_transform(data[categorical_cols])
 
     print("\nAfter Missing Values Handling:")
-    print(data[numerical_cols].isnull().sum())
+    print(data.head())
     return data
 
 # Detect and Handle Outliers
@@ -100,7 +100,7 @@ def normalize_data(data, scaling_method='standard'):
 
     data[numerical_cols] = scaler.fit_transform(data[numerical_cols])
     print("\nNormalization (after scaling):")
-    print(data[numerical_cols].head())
+    print(data.head())
     return data
 
 # Feature Engineering
@@ -122,7 +122,7 @@ def save_data(data, file_name):
 
 # Main Execution Block
 if __name__ == "__main__":
-    file_path = "C:/Users/rushi/OneDrive/Desktop/M.Tech/!st year 1st term/ACI/Project/Book1.csv"
+    file_path = "C:/Users/rushi/OneDrive/Desktop/M.Tech/!st year 1st term/ACI/Project/heart_failure_clinical_records_dataset.csv"
     data = load_data(file_path)
 
     if data is not None:
@@ -133,3 +133,4 @@ if __name__ == "__main__":
         save_data(data, "preprocessed_data.csv")
         print("\nPreprocessed Data:")
         print(data.head())
+
