@@ -65,6 +65,17 @@ def handle_missing_values(data, numerical_strategy='mean', categorical_strategy=
     print(data.head())
     return data
 
+# Handle Categorical Encoding using One-Hot Encoding
+def encode_categorical_data(data):
+    """Apply One-Hot Encoding to categorical columns."""
+    categorical_cols = data.select_dtypes(include=['object', 'category']).columns.tolist()
+
+    if categorical_cols:
+        data = pd.get_dummies(data, columns=categorical_cols, drop_first=True)
+        print("\nAfter One-Hot Encoding: ")
+        print(data.head())
+    return data
+
 # Detect and Handle Outliers
 def detect_outliers(data, fold=1.5):
     """Detect and handle outliers using the IQR method."""
@@ -136,7 +147,7 @@ def feature_engineering(data):
 def save_data(data, file_name):
     """Save the preprocessed data to a CSV file."""
     try:
-        data.to_csv(file_name, index=False)
+        # data.to_csv(file_name, index=False)
         print(f"Preprocessed dataset saved as '{file_name}' ✅")
     except Exception as e:
         print(f"Error saving the dataset: {e}")
@@ -148,6 +159,8 @@ if __name__ == "__main__":
 
     if data is not None:
         data = handle_missing_values(data)
+        data = encode_categorical_data(data)
+        print(data.head())
         data = detect_outliers(data)
         data = normalize_data(data)
         data = feature_engineering(data)
